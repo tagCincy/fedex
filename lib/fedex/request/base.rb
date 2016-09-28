@@ -1,5 +1,8 @@
 require 'httparty'
 require 'nokogiri'
+require 'active_support/inflector'
+require 'active_support/core_ext/hash'
+require 'active_support/core_ext/array'
 require 'fedex/helpers'
 require 'fedex/rate'
 
@@ -378,7 +381,7 @@ module Fedex
       # Recursively sanitizes the response object by cleaning up any hash keys.
       def sanitize_response_keys(response)
         if response.is_a?(Hash)
-          response.inject({}) { |result, (key, value)| result[underscorize(key).to_sym] = sanitize_response_keys(value); result }
+          response.deep_transform_keys { |key| key.tableize.to_sym }
         elsif response.is_a?(Array)
           response.collect { |result| sanitize_response_keys(result) }
         else
